@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "1JC3-Assign1:lib"
+
+    - path: "./app/Main.hs"
+      component: "1JC3-Assign1:exe:1JC3-Assign1-exe"
+
+    - path: "./app/Paths_1JC3_Assign1.hs"
+      component: "1JC3-Assign1:exe:1JC3-Assign1-exe"
+
+    - path: "./test"
+      component: "1JC3-Assign1:test:1JC3-Assign1-test"
