@@ -1,0 +1,147 @@
+{-|
+Module      : 1JC3-Assign3.Assign_3.hs
+Copyright   :  (c) Curtis D'Alves 2021
+License     :  GPL (see the LICENSE file)
+Maintainer  :  none
+Stability   :  experimental
+Portability :  portable
+
+Description:
+  Assignment 3 - McMaster CS 1JC3 2021
+-}
+module Assign_3 where
+
+-----------------------------------------------------------------------------------------------------------
+-- INSTRUCTIONS              README!!!
+-----------------------------------------------------------------------------------------------------------
+-- 1) DO NOT DELETE/ALTER ANY CODE ABOVE THESE INSTRUCTIONS
+-- 2) DO NOT REMOVE / ALTER TYPE DECLERATIONS (I.E THE LINE WITH THE :: ABOUT THE FUNCTION DECLERATION)
+--    IF YOU ARE UNABLE TO COMPLETE A FUNCTION, LEAVE IT'S ORIGINAL IMPLEMENTATION (I.E. THROW AN ERROR)
+-- 3) MAKE SURE THE PROJECT COMPILES (I.E. RUN STACK BUILD AND MAKE SURE THERE ARE NO ERRORS) BEFORE
+--    SUBMITTING, FAILURE TO DO SO WILL RESULT IN A MARK OF 0
+-- 4) REPLACE macid = "TODO" WITH YOUR ACTUAL MACID (EX. IF YOUR MACID IS jim THEN macid = "jim")
+-----------------------------------------------------------------------------------------------------------
+
+-- Name: TODO add name
+-- Date: TODO add date
+macid :: String
+macid = "TODO"
+
+{- -----------------------------------------------------------------
+ - Datatypes
+ - -----------------------------------------------------------------
+ -}
+data Graph a = Graph { getNodes :: [Node a]
+                     , getEdges :: [Edge] }
+  deriving (Show,Eq)
+
+type Edge = (NodeID,NodeID)
+type NodeID = Int
+
+data Node a = Node { getNodeID  :: NodeID,
+                     getNodeVal :: a }
+  deriving (Show,Eq,Ord)
+
+
+{- -----------------------------------------------------------------
+ - Example Graph
+ - -----------------------------------------------------------------
+ -              -----        ----------
+ -              | A |------->| C |    |
+ -              -----        ----- <---
+ -                |           |
+ -                |     ------|
+ -                v     |
+ -              ----- <-|
+ -              | B |
+ -              -----
+ -}
+nodeA,nodeB,nodeC :: Node Char
+nodeA = Node 0 'A'
+nodeB = Node 1 'B'
+nodeC = Node 2 'C'
+nodeD = Node 0 'A' 
+exGraph :: Graph Char
+exGraph =
+  let
+    nodes = [nodeA,nodeB,nodeC]
+    edges = [(0,1),(0,2),(2,2),(2,1)]
+  in Graph nodes edges
+
+  
+{- -----------------------------------------------------------------
+ - maxNodeID
+ - -----------------------------------------------------------------
+ - Description:
+ -    TODO add comments
+ -}
+
+
+maxNodeID :: Graph a -> Maybe NodeID
+maxNodeID graph =  Just (maximum [getNodeID x | x <- getNodes graph])
+
+{- -----------------------------------------------------------------
+ - insertNode
+ - -----------------------------------------------------------------
+ - Description:
+ -    TODO add comments
+ -}
+insertNode :: a -> Graph a -> Graph a
+insertNode v graph = let 
+                      nodeIDList = [getNodeID x | x <- getNodes graph]
+                      lastID = maximum(nodeIDList)
+                      nID = if null (getNodes graph) then 0 else  lastID + 1 
+                      nodeN = getNodes graph ++ [Node nID v] 
+                      edgeN = getEdges graph 
+                    in Graph nodeN edgeN 
+
+{- -----------------------------------------------------------------
+ - removeNode
+ - -----------------------------------------------------------------
+ - Description:
+ -    TODO add comments
+ -}
+
+removeNode :: NodeID -> Graph a -> Graph a
+removeNode nID graph = let 
+                        nodes = getNodes graph
+                        edges = getEdges graph 
+                        newNodes = [x | x<- nodes, getNodeID(x) /= nID]
+                        newEdges = [ x | x <- edges, fst(x) /= nID && snd(x) /= nID]
+                       in Graph newNodes newEdges
+
+{- -----------------------------------------------------------------
+ - lookupNode
+ - -----------------------------------------------------------------
+ - Description:
+ -    TODO add comments
+ -}
+lookupNode :: NodeID -> Graph a -> Maybe (Node a)
+lookupNode nID graph = let 
+                        nodes = getNodes graph
+                        newNodes = [x | x<- nodes, getNodeID(x) == nID]
+                        in if null(newNodes) then Nothing else Just (head newNodes)
+                          
+
+
+{- -----------------------------------------------------------------
+ - insertEdge
+ - -----------------------------------------------------------------
+ - Description:
+ -   TODO add comments
+ -}
+insertEdge :: Eq a => (NodeID,NodeID) -> Graph a -> Maybe (Graph a)
+insertEdge _       (Graph [] _)  = Nothing
+insertEdge (n1,n2) (Graph ns es)
+  | not containsBothNodes = Nothing 
+  | containsEdge          = Just (Graph ns es)
+  | otherwise             = let 
+                            newEs = es ++ [(n1,n2)]
+                           in Just (Graph ns newEs)
+  where
+    containsBothNodes :: Bool
+    containsBothNodes 
+      | lookupNode n1 (Graph ns es) == Nothing || lookupNode n2 (Graph ns es) == Nothing = False 
+      | otherwise = True 
+    containsEdge :: Bool
+    containsEdge =  if null [ x | x <- es, fst(x) == n1 && snd(x) == n2] then False else True 
